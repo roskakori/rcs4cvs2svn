@@ -93,7 +93,10 @@ def makedirs(dst):
 
 def cli():
     # Parse command line arguments.
-    parser = optparse.OptionParser("usage: %prog [options] RCSFOLDER CVSFOLDER")
+    parser = optparse.OptionParser(
+        usage = "usage: %prog [options] RCSFOLDER CVSFOLDER",
+        version = "%prog " + __version__
+    )
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
                       help="log all actions performed in console")
     (options, others) = parser.parse_args()
