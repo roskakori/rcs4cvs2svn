@@ -3,23 +3,20 @@
 rcs4cvs2svn prepares an RCS project for processing with cvs2svn.
 
 rcs4cvs2svn is useful for developers who still have ancient source code
-floating around in RCS repositories and want to move it to a modern
-SCM system.
+floating around in RCS repositories and want to move it to a modern SCM system.
 
-While rcs4cvs2svn does not provide any possibility to directly migrate
-to any other SCM system, it creates a copy of your RCS repository that
-can be processed by cvs2svn, available from <http://cvs2svn.tigris.org/>.
+While rcs4cvs2svn does not provide any possibility to directly migrate to any
+other SCM system, it creates a copy of your RCS repository that can be
+processed by cvs2svn, available from <http://cvs2svn.tigris.org/>.
 
-That way, you'll end up with a Subversion repository, which already
-may be sufficient. Alternatively, Subversion offers a sound base
-for further migration to another SCM such as Git or Mercurial, as most
-SCM vendors provide tools to migrate from SVN but not RCS. 
+That way, you'll end up with a Subversion repository, which already may be
+sufficient. Alternatively, Subversion offers a sound base for further migration
+to another SCM such as Git or Mercurial, as most SCM vendors provide tools to
+migrate from SVN but not RCS.
 
-(You can of course use rcs4cvs2svn as replacement for various rcs2cvs
-scripts floating around. Unlike many of these scripts, 
-rcs4cvs2svn can process 
-filenames with space characters and handles any errors it
-encounters.)
+(You can of course use rcs4cvs2svn as replacement for various rcs2cvs scripts
+floating around. Unlike many of these scripts, rcs4cvs2svn can process
+filenames with space characters and handles any errors it encounters.)
 
 Usage
 =====
@@ -40,8 +37,8 @@ Tutorial
 This section describes how to migrate an RCS repository to
 CSV and then to Subversion.
 
-First, create a simple RCS repository for a project called "hello"
-which contains a single file, "hello.txt" with 2 revisions::
+First, create a simple RCS repository for a project called "hello" which
+contains a single file, "hello.txt" with 2 revisions::
 
   mkdir -p hello/RCS
   cd hello
@@ -59,13 +56,12 @@ Now migrate the the RCS repository to CSV.
 
   python rcs4cvs2svn.py hello/ /tmp/hello_cvs/
 
-Because CVS still is a very dated way to manage a software project,
-let's move on to the next step of evolution: Subversion. You will
-need ``cvs2svn``, available from <http://cvs2svn.tigris.org/>.
+Because CVS still is a very dated way to manage a software project, let's move
+on to the next step of evolution: Subversion. You will need ``cvs2svn``,
+available from <http://cvs2svn.tigris.org/>.
 
-While there are several ways to convert CVS to SVN, the easiest
-for our task is to simple create a SVN dumpfile containing the
-CVS as trunk::
+While there are several ways to convert CVS to SVN, the easiest for our task is
+to simple create a SVN dumpfile containing the CVS as trunk::
 
   cvs2svn --trunk-only --dumpfile hello.dump /tmp/hello_cvs/
 
@@ -74,14 +70,14 @@ Now you can create a SVN repository and load the trunk into it::
   svnadmin create /tmp/hello_svn/
   svnadmin load /tmp/hello_svn/ <hello.dump
 
-Moving on to even more advanced SCM systems is left as an
-exercise to the reader.
- 
+Moving on to even more advanced SCM systems is left as an exercise to the
+reader.
+
 License
 =======
 
-Copyright (c) 2006-2010, Thomas Aglassinger. All rights reserved.
-Distributed under the BSD License.
+Copyright (c) 2006-2010, Thomas Aglassinger. All rights reserved. Distributed
+under the BSD License.
 
 Version information
 ===================
@@ -127,14 +123,14 @@ Initial internal version used to convert some of my own projects.
 # Create the installer archive:
 #
 # > python setup.py sdist --formats=zip
-# 
+#
 # Upload release to PyPI:
 #
 # > sh test_rcs4csv2svn.sh
 # > python setup.py sdist --formats=zip upload
 #
 # Tag a release in the repository:
-# > svn copy -m "Added tag for version 1.x." file:///Users/${USER}/Repositories/test_rcs4csv2svn/trunk file:///Users/${USER}/Repositories/test_rcs4csv2svn/tags/1.x
+# > svn copy -m "Added tag for version 1.x." file:///Users/${USER}/Repositories/rcs4csv2svn/trunk file:///Users/${USER}/Repositories/rcs4csv2svn/tags/1.x
 
 import errno
 import logging
