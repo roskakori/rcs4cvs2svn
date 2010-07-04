@@ -58,8 +58,8 @@ Distributed under the BSD License.
 #
 # python setup.py sdist --formats=zip
 import errno
-import getopt
 import logging
+import optparse
 import os.path
 import shutil
 import sys
@@ -89,25 +89,24 @@ def makedirs(dst):
         os.makedirs(dst)
     except OSError, error:
         if error.errno != errno.EEXIST:
-            raise error
+            raise
 
 def cli():
-    # Set up logging.
-    logging.basicConfig()
-    log.setLevel(logging.INFO)
-
     # Parse command line arguments.
-    options, others =  getopt.getopt(sys.argv[1:], "v", ["verbose"])
-    if len(others) != 2:
-        errorMessage = "<rcs source path> and <cvs target path> must be specified, but there where: " + str(others)
-        raise getopt.GetoptError(errorMessage, others)
+    parser = optparse.OptionParser("usage: %prog [options] RCSFOLDER CVSFOLDER")
+    parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
+                      help="log all actions performed in console")
+    (options, others) = parser.parse_args()
+    if len(others) == 0:
+        parser.error("RCSFOLDER and CVSFOLDER must be specified")
+    elif len(others) == 1:
+        parser.error("CVSFOLDER must be specified")
+    elif len(others) > 2:
+        parser.error("unknown options must be removed: %s" % others[2:])
     rcsDir = others[0]
     flattenedDir = others[1]
-    for option, _ in options:
-        if option in ("--verbose", "-v"):
-            log.setLevel(logging.DEBUG)
-        else:
-            assert False, "option must be implemented: " + option
+    if options.verbose:
+        log.setLevel(logging.DEBUG)
 
     rcsFiles = listFiles(rcsDir)
     copiedFileCount = 0
@@ -127,4 +126,7 @@ def cli():
     log.info("migrated %d files from \"%s\" to \"%s\"" %(copiedFileCount, rcsDir, flattenedDir))
 
 if __name__ == "__main__":
+    # Set up logging.
+    logging.basicConfig()
+    log.setLevel(logging.INFO)
     cli()
