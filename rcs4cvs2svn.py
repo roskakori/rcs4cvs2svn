@@ -121,6 +121,11 @@ Initial internal version used to convert some of my own projects.
 # To create the installer archive, run:
 #
 # python setup.py sdist --formats=zip
+# 
+# Upload release to PyPI:
+# > sh test_rcs4csv2svn.sh
+# > python setup.py sdist --formats=zip upload
+
 import errno
 import logging
 import optparse
@@ -132,7 +137,7 @@ log = logging.getLogger("rcs4cvs2svn")
 
 __version__ = "1.0"
 
-VERSION_REV, VERSION_DATE = "$Id: loxun.py 49 2010-07-03 15:09:49Z roskakori $".split()[2:4]
+VERSION_REV, VERSION_DATE = "$Id$".split()[2:4]
 
 def listFiles(baseDir):
     assert baseDir is not None
