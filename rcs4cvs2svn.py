@@ -12,14 +12,65 @@ can be processed by cvs2svn, available from <http://cvs2svn.tigris.org/>.
 
 That way, you'll end up with a Subversion repository, which already
 may be sufficient. Alternatively Subversion offers a sound base
-for further migration to another SCM such as git or Mercurial, as most
+for further migration to another SCM such as Git or Mercurial, as most
 SCM vendors provide tools to migrate from SVN but not RCS. 
 
 Usage
 =====
 
-TODO
+Usage is simple::
 
+  python rcs4cvs2svn /path/to/rcs/project /path/to/cvs/repository
+
+There are a couple of options, run::
+
+  python rcs4cvs2svn --help
+
+for more information.
+
+Tutorial
+========
+
+This tutorial section describes how to migrate an RCS repository to
+CSV and then to Subversion.
+
+First, create a simple RCS repository for a project called "hello"
+which contains a single file, "hello.txt" with 2 revisions::
+
+  mkdir -p hello/RCS
+  cd hello
+  echo "hello world!" >hello.txt
+  echo "Added greetings.\n." | ci -u hello.txt
+  co -l hello.txt
+  echo "hello space!" >>hello.txt
+  echo "Added more greetings.\n." | ci -u hello.txt
+
+Next, create a new CVS repository which will act as destination::
+
+  cvs -d /tmp/hello_cvs init
+
+Now migrate the the RCS repository to CSV.
+
+  python rcs4cvs2svn.py hello/ /tmp/hello_cvs/
+
+Because CVS still is a very dated way to manage a software project,
+let's move on to the next step of evolution: Subversion. You will
+need ``cvs2svn``, available from <http://cvs2svn.tigris.org/>.
+
+While there are several ways to convert CVS to SVN, the easiest
+for out task is to simple create a SVN dumpfile containing the
+CVS as trunk::
+
+  cvs2svn --trunk-only --dumpfile hello.dump /tmp/hello_cvs/
+
+Now you can create a SVN repository and load the trunk into it::
+
+  svnadmin create /tmp/hello_svn/
+  svnadmin load /tmp/hello_svn/ <hello.dump
+
+Moving on to even more advanced SCM systems is left as an
+exercise to the reader.
+ 
 License
 =======
 
@@ -94,16 +145,16 @@ def makedirs(dst):
 def cli():
     # Parse command line arguments.
     parser = optparse.OptionParser(
-        usage = "usage: %prog [options] RCSFOLDER CVSFOLDER",
+        usage = "usage: %prog [options] RCS_FOLDER CVS_FOLDER\n\nMigrate RCS repository to CVS.",
         version = "%prog " + __version__
     )
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
                       help="log all actions performed in console")
     (options, others) = parser.parse_args()
     if len(others) == 0:
-        parser.error("RCSFOLDER and CVSFOLDER must be specified")
+        parser.error("RCS_FOLDER and CVS_FOLDER must be specified")
     elif len(others) == 1:
-        parser.error("CVSFOLDER must be specified")
+        parser.error("CVS_FOLDER must be specified")
     elif len(others) > 2:
         parser.error("unknown options must be removed: %s" % others[2:])
     rcsDir = others[0]
@@ -132,4 +183,12 @@ if __name__ == "__main__":
     # Set up logging.
     logging.basicConfig()
     log.setLevel(logging.INFO)
-    cli()
+    exitCode = 1
+    try:
+        cli()
+        exitCode = 0
+    except EnvironmentError, error:
+        log.error(error)
+    except Exception, error:
+        log.exception(error)
+    sys.exit(exitCode)
