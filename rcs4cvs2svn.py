@@ -15,6 +15,12 @@ may be sufficient. Alternatively, Subversion offers a sound base
 for further migration to another SCM such as Git or Mercurial, as most
 SCM vendors provide tools to migrate from SVN but not RCS. 
 
+(You can of course use rcs4cvs2svn as replacement for various rcs2cvs
+scripts floating around. Unlike many of these scripts, 
+rcs4cvs2svn can process 
+filenames with space characters and handles any errors it
+encounters.)
+
 Usage
 =====
 
@@ -85,7 +91,7 @@ Version 1.0, 2010-07-04
 
 Initial public release.
 
-Version 0.1, 2006-05-01
+Version 0.9, 2006-05-01
 -----------------------
 
 Initial internal version used to convert some of my own projects.
@@ -118,13 +124,17 @@ Initial internal version used to convert some of my own projects.
 
 # Developer cheat sheet:
 #
-# To create the installer archive, run:
+# Create the installer archive:
 #
-# python setup.py sdist --formats=zip
+# > python setup.py sdist --formats=zip
 # 
 # Upload release to PyPI:
+#
 # > sh test_rcs4csv2svn.sh
 # > python setup.py sdist --formats=zip upload
+#
+# Tag a release in the repository:
+# > svn copy -m "Added tag for version 1.x." file:///Users/${USER}/Repositories/test_rcs4csv2svn/trunk file:///Users/${USER}/Repositories/test_rcs4csv2svn/tags/1.x
 
 import errno
 import logging
