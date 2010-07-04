@@ -11,7 +11,7 @@ to any other SCM system, it creates a copy of your RCS repository that
 can be processed by cvs2svn, available from <http://cvs2svn.tigris.org/>.
 
 That way, you'll end up with a Subversion repository, which already
-may be sufficient. Alternatively Subversion offers a sound base
+may be sufficient. Alternatively, Subversion offers a sound base
 for further migration to another SCM such as Git or Mercurial, as most
 SCM vendors provide tools to migrate from SVN but not RCS. 
 
@@ -20,18 +20,18 @@ Usage
 
 Usage is simple::
 
+  cvs -d /path/to/cvs/repository init
   python rcs4cvs2svn /path/to/rcs/project /path/to/cvs/repository
 
-There are a couple of options, run::
+There are a couple of options, for more information run::
 
   python rcs4cvs2svn --help
 
-for more information.
 
 Tutorial
 ========
 
-This tutorial section describes how to migrate an RCS repository to
+This section describes how to migrate an RCS repository to
 CSV and then to Subversion.
 
 First, create a simple RCS repository for a project called "hello"
@@ -58,7 +58,7 @@ let's move on to the next step of evolution: Subversion. You will
 need ``cvs2svn``, available from <http://cvs2svn.tigris.org/>.
 
 While there are several ways to convert CVS to SVN, the easiest
-for out task is to simple create a SVN dumpfile containing the
+for our task is to simple create a SVN dumpfile containing the
 CVS as trunk::
 
   cvs2svn --trunk-only --dumpfile hello.dump /tmp/hello_cvs/
@@ -76,6 +76,19 @@ License
 
 Copyright (c) 2006-2010, Thomas Aglassinger. All rights reserved.
 Distributed under the BSD License.
+
+Version information
+===================
+
+Version 1.0, 2010-07-04
+-----------------------
+
+Initial public release.
+
+Version 0.1, 2006-05-01
+-----------------------
+
+Initial internal version used to convert some of my own projects.
 """
 # Copyright (c) 2006-2010, Thomas Aglassinger
 # All rights reserved.
@@ -145,7 +158,7 @@ def makedirs(dst):
 def cli():
     # Parse command line arguments.
     parser = optparse.OptionParser(
-        usage = "usage: %prog [options] RCS_FOLDER CVS_FOLDER\n\nMigrate RCS repository to CVS.",
+        usage = "usage: %prog [options] RCS_FOLDER CVS_FOLDER\n\nPrepare an RCS project for processing with cvs2svn.",
         version = "%prog " + __version__
     )
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
