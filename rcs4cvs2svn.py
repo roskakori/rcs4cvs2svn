@@ -91,18 +91,21 @@ Version 1.1, 2010-07-04
 * Added automatic creation of CVS repository in case the target path does
   not already contains a ``CVSROOT`` folder. In order for this to work, the
   ``cvs`` command line client has  to be installed.
+* Fixed protection bits in CVS which were copied from RCS and does made the
+  files write protected (which was not an issue for converting to SVN but
+  forced the user to remove the CVS for repeated conversion).
 * Cleaned up API. Simply ``import rcs4cvs2svn`` and call
   ``initCvsRepository()`` and ``convertRcsToCvs()`` as needed.
 
 Version 1.0, 2010-07-04
 -----------------------
 
-Initial public release.
+* Initial public release.
 
 Version 0.9, 2006-05-01
 -----------------------
 
-Initial internal version used to convert some of my own projects.
+* Initial internal version used to convert some of my own projects.
 """
 # Copyright (c) 2006-2010, Thomas Aglassinger
 # All rights reserved.
