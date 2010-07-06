@@ -24,7 +24,6 @@ Usage
 
 Usage is simple::
 
-  cvs -d /path/to/cvs/repository init
   python rcs4cvs2svn /path/to/rcs/project /path/to/cvs/repository
 
 There are a couple of options, for more information run::
@@ -49,13 +48,14 @@ contains a single file, "hello.txt" with 2 revisions::
   echo "hello space!" >>hello.txt
   echo "Added more greetings.\n." | ci -u hello.txt
 
-Next, create a new CVS repository which will act as destination::
-
-  cvs -d /tmp/hello_cvs init
-
-Now migrate the the RCS repository to CSV.
+Now migrate the the RCS repository to CSV::
 
   python rcs4cvs2svn.py hello/ /tmp/hello_cvs/
+
+The output should be::
+
+  INFO:rcs4cvs2svn:create new CVS repository at "/tmp/hello_cvs/"
+  INFO:rcs4cvs2svn:migrated 1 files from "hello/" to "/tmp/hello_cvs/"
 
 Because CVS still is a very dated way to manage a software project, let's move
 on to the next step of evolution: Subversion. You will need ``cvs2svn``,
@@ -84,6 +84,15 @@ under the `BSD License <http://www.opensource.org/licenses/bsd-license.php>`_.
 
 Version information
 ===================
+
+Version 1.1, 2010-07-04
+-----------------------
+
+* Added automatic creation of CVS repository in case the target path does
+  not already contains a ``CVSROOT`` folder. In order for this to work, the
+  ``cvs`` command line client has  to be installed.
+* Cleaned up API. Simply ``import rcs4cvs2svn`` and call
+  ``initCvsRepository()`` and ``convertRcsToCvs()`` as needed.
 
 Version 1.0, 2010-07-04
 -----------------------
@@ -140,6 +149,7 @@ import logging
 import optparse
 import os.path
 import shutil
+import subprocess
 import sys
 
 log = logging.getLogger("rcs4cvs2svn")
@@ -148,11 +158,12 @@ __version__ = "1.0"
 
 VERSION_REV, VERSION_DATE = "$Id$".split()[2:4]
 
-def listFiles(baseDir):
-    assert baseDir is not None
+def _listFiles(folderToListPath):
+    assert folderToListPath is not None
+
     result = []
-    absoluteBaseDir = os.path.abspath(baseDir)
-    for root, _, files in os.walk(baseDir):
+    absoluteBaseDir = os.path.abspath(folderToListPath)
+    for root, _, files in os.walk(folderToListPath):
         for name in files:
             absoluteFilePath = os.path.abspath(os.path.join(root, name))
             if absoluteFilePath.find(".svn") == -1:
@@ -160,17 +171,56 @@ def listFiles(baseDir):
                 result.append(relativeFilePath)
     return result
 
-def makedirs(dst):
-    "Like os.makedirs(), but does not raise OSError if directory already exists."
-    assert dst is not None
+def _makedirs(folderToCreatePath):
+    "Like ``os.makedirs()``, but does not raise OSError if directory already exists."
+    assert folderToCreatePath is not None
+
     try:
-        os.makedirs(dst)
+        os.makedirs(folderToCreatePath)
     except OSError, error:
         if error.errno != errno.EEXIST:
             raise
 
+def initCvsRepository(csvTargetFolderPath):
+    """
+    Check that ``csvTargetFolderPath`` is a path to a CVS repository and if not,
+    call the ``csv`` command line client to create one.
+    """
+    assert csvTargetFolderPath is not None
+
+    cvsRootPath = os.path.join(csvTargetFolderPath, "CVSROOT")
+    if not os.path.exists(cvsRootPath):
+        log.info("create new CVS repository at \"%s\"" % csvTargetFolderPath)
+        subprocess.check_call(["cvs", "-d", csvTargetFolderPath, "init"])
+
+def convertRcsToCvs(rcsSourceFolderPath, csvTargetFolderPath):
+    """
+    Convert source code in RCS repository  ``rcsSourceFolderPath`` to
+    existing CVS repository at ``csvTargetFolderPath``.
+    """
+    assert rcsSourceFolderPath is not  None
+    assert csvTargetFolderPath is not None
+    
+    rcsFiles = _listFiles(rcsSourceFolderPath)
+    copiedFileCount = 0
+    for filePath in rcsFiles:
+        if filePath.endswith(",v"):
+            rcsFilePath = os.path.join(rcsSourceFolderPath, filePath)
+            possibleRcsDir = os.path.split(filePath)[0]
+            possibleRcsDirName = os.path.split(possibleRcsDir)[1]
+            if possibleRcsDirName == "RCS":
+                rcsParentDir = os.path.split(possibleRcsDir)[0]
+                rcsFileName = os.path.split(rcsFilePath)[1]
+                flattenedFilePath = os.path.join(csvTargetFolderPath, os.path.join(rcsParentDir, rcsFileName))
+                log.debug("copy \"%s\" -> \"%s\"" %(filePath, flattenedFilePath))
+                _makedirs(os.path.split(flattenedFilePath)[0])
+                # Copy file without permission bits.
+                shutil.copyfile(rcsFilePath, flattenedFilePath)
+                copiedFileCount += 1
+    log.info("migrated %d files from \"%s\" to \"%s\"" %(copiedFileCount, rcsSourceFolderPath, csvTargetFolderPath))
+
 def cli():
-    # Parse command line arguments.
+    # Parse command line options.
     parser = optparse.OptionParser(
         usage = "usage: %prog [options] RCS_FOLDER CVS_FOLDER\n\nPrepare an RCS project for processing with cvs2svn.",
         version = "%prog " + __version__
@@ -184,27 +234,13 @@ def cli():
         parser.error("CVS_FOLDER must be specified")
     elif len(others) > 2:
         parser.error("unknown options must be removed: %s" % others[2:])
-    rcsDir = others[0]
-    flattenedDir = others[1]
+    rcsSourceFolderPath = others[0]
+    csvTargetFolderPath = others[1]
     if options.verbose:
         log.setLevel(logging.DEBUG)
 
-    rcsFiles = listFiles(rcsDir)
-    copiedFileCount = 0
-    for filePath in rcsFiles:
-        if filePath.endswith(",v"):
-            rcsFilePath = os.path.join(rcsDir, filePath)
-            possibleRcsDir = os.path.split(filePath)[0]
-            possibleRcsDirName = os.path.split(possibleRcsDir)[1]
-            if possibleRcsDirName == "RCS":
-                rcsParentDir = os.path.split(possibleRcsDir)[0]
-                rcsFileName = os.path.split(rcsFilePath)[1]
-                flattenedFilePath = os.path.join(flattenedDir, os.path.join(rcsParentDir, rcsFileName))
-                log.debug("copy \"%s\" -> \"%s\"" %(filePath, flattenedFilePath))
-                makedirs(os.path.split(flattenedFilePath)[0])
-                shutil.copy(rcsFilePath, flattenedFilePath)
-                copiedFileCount += 1
-    log.info("migrated %d files from \"%s\" to \"%s\"" %(copiedFileCount, rcsDir, flattenedDir))
+    initCvsRepository(csvTargetFolderPath)
+    convertRcsToCvs(rcsSourceFolderPath, csvTargetFolderPath)
 
 if __name__ == "__main__":
     # Set up logging.
@@ -214,7 +250,7 @@ if __name__ == "__main__":
     try:
         cli()
         exitCode = 0
-    except EnvironmentError, error:
+    except (EnvironmentError, subprocess.CalledProcessError), error:
         log.error(error)
     except Exception, error:
         log.exception(error)

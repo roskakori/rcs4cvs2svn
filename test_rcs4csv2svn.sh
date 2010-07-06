@@ -16,13 +16,6 @@ co -l hello.txt
 echo "hello space!" >>hello.txt
 echo "Added more greetings.\n." | ci -u hello.txt
 
-# Create CVS repository (requires an absolute path).
-cvs -d /tmp/hello_cvs init
-if [ $? -ne 0 ];then
-   echo "*** ERROR: see above for details"
-   exit 1
-fi
-
 # Migrate RCS to CSV.
 cd ..
 python ./rcs4cvs2svn.py hello/ /tmp/hello_cvs/
