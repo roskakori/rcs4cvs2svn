@@ -26,7 +26,7 @@ Usage is simple::
 
   python rcs4cvs2svn /path/to/rcs/project /path/to/cvs/repository
 
-There are a couple of options, for more information run::
+There is a couple of options, for more information run::
 
   python rcs4cvs2svn --help
 
