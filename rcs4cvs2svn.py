@@ -154,7 +154,7 @@ import sys
 
 log = logging.getLogger("rcs4cvs2svn")
 
-__version__ = "1.0"
+__version__ = "1.1"
 
 VERSION_REV, VERSION_DATE = "$Id$".split()[2:4]
 
