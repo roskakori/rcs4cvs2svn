@@ -7,16 +7,17 @@ floating around in RCS repositories and want to move it to a modern SCM system.
 
 While rcs4cvs2svn does not provide any possibility to directly migrate to any
 other SCM system, it creates a copy of your RCS repository that can be
-processed by cvs2svn, available from <http://cvs2svn.tigris.org/>.
+processed by `cvs2svn <http://cvs2svn.tigris.org/>`_.
 
 That way, you'll end up with a Subversion repository, which already may be
 sufficient. Alternatively, Subversion offers a sound base for further migration
 to another SCM such as Git or Mercurial, as most SCM vendors provide tools to
-migrate from SVN but not RCS.
+migrate from SVN but not from RCS.
 
 (You can of course use rcs4cvs2svn as replacement for various rcs2cvs scripts
 floating around. Unlike many of these scripts, rcs4cvs2svn can process
 filenames with space characters and handles any errors it encounters.)
+
 
 Usage
 =====
@@ -73,11 +74,13 @@ Now you can create a SVN repository and load the trunk into it::
 Moving on to even more advanced SCM systems is left as an exercise to the
 reader.
 
+
 License
 =======
 
 Copyright (c) 2006-2010, Thomas Aglassinger. All rights reserved. Distributed
-under the BSD License.
+under the `BSD License <http://www.opensource.org/licenses/bsd-license.php>`_.
+
 
 Version information
 ===================
