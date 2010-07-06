@@ -89,9 +89,9 @@ Version 1.1, 2010-07-04
 -----------------------
 
 * Added automatic creation of CVS repository in case the target path does
-  not already contains a ``CVSROOT`` folder. In order for this to work, the
+  not already contain a ``CVSROOT`` folder. In order for this to work, the
   ``cvs`` command line client has  to be installed.
-* Fixed protection bits in CVS which were copied from RCS and does made the
+* Fixed protection bits in CVS which were copied from RCS and did make the
   files write protected (which was not an issue for converting to SVN but
   forced the user to remove the CVS for repeated conversion).
 * Cleaned up API. Simply ``import rcs4cvs2svn`` and call
