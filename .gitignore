@@ -1,0 +1,6 @@
+*.pyc
+*.pyo
+/dist
+/hello
+/hello.dump
+/MANIFEST
