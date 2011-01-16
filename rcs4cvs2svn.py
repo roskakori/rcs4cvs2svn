@@ -24,11 +24,11 @@ Usage
 
 Usage is simple::
 
-  python rcs4cvs2svn /path/to/rcs/project /path/to/cvs/repository
+  $ python rcs4cvs2svn /path/to/rcs/project /path/to/cvs/repository
 
 There is a couple of options, for more information run::
 
-  python rcs4cvs2svn --help
+  $ python rcs4cvs2svn --help
 
 
 Tutorial
@@ -40,17 +40,17 @@ CSV and then to Subversion.
 First, create a simple RCS repository for a project called "hello" which
 contains a single file, "hello.txt" with 2 revisions::
 
-  mkdir -p hello/RCS
-  cd hello
-  echo "hello world!" >hello.txt
-  echo "Added greetings.\n." | ci -u hello.txt
-  co -l hello.txt
-  echo "hello space!" >>hello.txt
-  echo "Added more greetings.\n." | ci -u hello.txt
+  $ mkdir -p hello/RCS
+  $ cd hello
+  $ echo "hello world!" >hello.txt
+  $ echo "Added greetings.\n." | ci -u hello.txt
+  $ co -l hello.txt
+  $ echo "hello space!" >>hello.txt
+  $ echo "Added more greetings.\n." | ci -u hello.txt
 
 Now migrate the the RCS repository to CSV::
 
-  python rcs4cvs2svn.py hello/ /tmp/hello_cvs/
+  $ python rcs4cvs2svn.py hello/ /tmp/hello_cvs/
 
 The output should be::
 
@@ -64,12 +64,12 @@ available from <http://cvs2svn.tigris.org/>.
 While there are several ways to convert CVS to SVN, the easiest for our task is
 to simple create a SVN dumpfile containing the CVS as trunk::
 
-  cvs2svn --trunk-only --dumpfile hello.dump /tmp/hello_cvs/
+  $ cvs2svn --trunk-only --dumpfile hello.dump /tmp/hello_cvs/
 
 Now you can create a SVN repository and load the trunk into it::
 
-  svnadmin create /tmp/hello_svn/
-  svnadmin load /tmp/hello_svn/ <hello.dump
+  $ svnadmin create /tmp/hello_svn/
+  $ svnadmin load /tmp/hello_svn/ <hello.dump
 
 Moving on to even more advanced SCM systems is left as an exercise to the
 reader.
@@ -78,15 +78,20 @@ reader.
 License
 =======
 
-Copyright (c) 2006-2010, Thomas Aglassinger. All rights reserved. Distributed
+Copyright (c) 2006-2011, Thomas Aglassinger. All rights reserved. Distributed
 under the `BSD License <http://www.opensource.org/licenses/bsd-license.php>`_.
+
+
+Source code
+===========
+
+The source code is available from <https://github.com/roskakori/rcs4cvs2svn>.
 
 
 Version information
 ===================
 
-Version 1.1, 2010-07-04
------------------------
+**Version 1.1, 2010-07-04**
 
 * Added automatic creation of CVS repository in case the target path does
   not already contain a ``CVSROOT`` folder. In order for this to work, the
@@ -97,13 +102,11 @@ Version 1.1, 2010-07-04
 * Cleaned up API. Simply ``import rcs4cvs2svn`` and call
   ``initCvsRepository()`` and ``convertRcsToCvs()`` as needed.
 
-Version 1.0, 2010-07-04
------------------------
+**Version 1.0, 2010-07-04**
 
 * Initial public release.
 
-Version 0.9, 2006-05-01
------------------------
+**Version 0.9, 2006-05-01**
 
 * Initial internal version used to convert some of my own projects.
 """
@@ -133,19 +136,21 @@ Version 0.9, 2006-05-01
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Developer cheat sheet:
+# **Developer cheat sheet**
 #
-# Create the installer archive:
+# Create the installer archive::
 #
-# > python setup.py sdist --formats=zip
+# $ python setup.py sdist --formats=zip
 #
-# Upload release to PyPI:
+# Upload release to PyPI::
 #
-# > sh test_rcs4csv2svn.sh
-# > python setup.py sdist --formats=zip upload
+# $ sh test_rcs4csv2svn.sh
+# $ python setup.py sdist --formats=zip upload
 #
-# Tag a release in the repository:
-# > svn copy -m "Added tag for version 1.x." file:///Users/${USER}/Repositories/rcs4csv2svn/trunk file:///Users/${USER}/Repositories/rcs4csv2svn/tags/1.x
+# Tag a release in the repository::
+#
+# $ git tag -a -m "Tagged version 1.x." 1.x
+# $ git push --tags
 
 import errno
 import logging
@@ -158,8 +163,6 @@ import sys
 log = logging.getLogger("rcs4cvs2svn")
 
 __version__ = "1.1"
-
-VERSION_REV, VERSION_DATE = "$Id$".split()[2:4]
 
 def _listFiles(folderToListPath):
     assert folderToListPath is not None
@@ -203,7 +206,7 @@ def convertRcsToCvs(rcsSourceFolderPath, csvTargetFolderPath):
     """
     assert rcsSourceFolderPath is not  None
     assert csvTargetFolderPath is not None
-    
+
     rcsFiles = _listFiles(rcsSourceFolderPath)
     copiedFileCount = 0
     for filePath in rcsFiles:
