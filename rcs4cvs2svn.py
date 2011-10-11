@@ -127,14 +127,15 @@ Version information
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
 
 # **Developer cheat sheet**
 #
@@ -145,6 +146,7 @@ Version information
 # Upload release to PyPI::
 #
 # $ sh test_rcs4cvs2svn.sh
+# $ pep8 --repeat *.py
 # $ python setup.py sdist --formats=zip upload
 #
 # Tag a release in the repository::
@@ -164,6 +166,7 @@ log = logging.getLogger("rcs4cvs2svn")
 
 __version__ = "1.1"
 
+
 def _listFiles(folderToListPath):
     assert folderToListPath is not None
 
@@ -177,8 +180,12 @@ def _listFiles(folderToListPath):
                 result.append(relativeFilePath)
     return result
 
+
 def _makedirs(folderToCreatePath):
-    "Like ``os.makedirs()``, but does not raise OSError if directory already exists."
+    """
+    Like ``os.makedirs()``, but does not raise OSError if directory already
+    exists.
+    """
     assert folderToCreatePath is not None
 
     try:
@@ -187,10 +194,11 @@ def _makedirs(folderToCreatePath):
         if error.errno != errno.EEXIST:
             raise
 
+
 def initCvsRepository(cvsTargetFolderPath):
     """
-    Check that ``cvsTargetFolderPath`` is a path to a CVS repository and if not,
-    call the ``csv`` command line client to create one.
+    Check that ``cvsTargetFolderPath`` is a path to a CVS repository and if
+    not, call the ``csv`` command line client to create one.
     """
     assert cvsTargetFolderPath is not None
 
@@ -198,6 +206,7 @@ def initCvsRepository(cvsTargetFolderPath):
     if not os.path.exists(cvsRootPath):
         log.info("create new CVS repository at \"%s\"" % cvsTargetFolderPath)
         subprocess.check_call(["cvs", "-d", cvsTargetFolderPath, "init"])
+
 
 def convertRcsToCvs(rcsSourceFolderPath, cvsTargetFolderPath):
     """
@@ -217,19 +226,30 @@ def convertRcsToCvs(rcsSourceFolderPath, cvsTargetFolderPath):
             if possibleRcsDirName == "RCS":
                 rcsParentDir = os.path.split(possibleRcsDir)[0]
                 rcsFileName = os.path.split(rcsFilePath)[1]
-                flattenedFilePath = os.path.join(cvsTargetFolderPath, os.path.join(rcsParentDir, rcsFileName))
-                log.debug("copy \"%s\" -> \"%s\"" %(filePath, flattenedFilePath))
+                flattenedFilePath = os.path.join(
+                    cvsTargetFolderPath,
+                    os.path.join(rcsParentDir, rcsFileName)
+                )
+                log.debug("copy \"%s\" -> \"%s\"" % (
+                    filePath, flattenedFilePath
+                ))
                 _makedirs(os.path.split(flattenedFilePath)[0])
                 # Copy file without permission bits.
                 shutil.copyfile(rcsFilePath, flattenedFilePath)
                 copiedFileCount += 1
-    log.info("migrated %d files from \"%s\" to \"%s\"" %(copiedFileCount, rcsSourceFolderPath, cvsTargetFolderPath))
+    log.info("migrated %d files from \"%s\" to \"%s\"" % (
+        copiedFileCount, rcsSourceFolderPath, cvsTargetFolderPath
+    ))
+
 
 def cli():
     # Parse command line options.
+    Usage = """usage: %prog [options] RCS_FOLDER CVS_FOLDER
+
+    Prepare an RCS project for processing with cvs2svn."""
     parser = optparse.OptionParser(
-        usage = "usage: %prog [options] RCS_FOLDER CVS_FOLDER\n\nPrepare an RCS project for processing with cvs2svn.",
-        version = "%prog " + __version__
+        usage=Usage,
+        version="%prog " + __version__
     )
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
                       help="log all actions performed in console")

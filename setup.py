@@ -15,7 +15,7 @@ setup(
     author_email="roskakori@users.sourceforge.net",
     url="http://pypi.python.org/pypi/rcs4cvs2svn/",
     license="BSD License",
-    long_description=rcs4cvs2svn.__doc__, #@UndefinedVariable
+    long_description=rcs4cvs2svn.__doc__,  # @UndefinedVariable
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
