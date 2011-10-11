@@ -10,7 +10,7 @@ setup(
     version=rcs4cvs2svn.__version__,
     py_modules=["rcs4cvs2svn"],
     description="prepare RCS project for processing with cvs2svn",
-    keywords="rcs csv svn convert migrate import",
+    keywords="rcs cvs svn convert migrate import",
     author="Thomas Aglassinger",
     author_email="roskakori@users.sourceforge.net",
     url="http://pypi.python.org/pypi/rcs4cvs2svn/",
