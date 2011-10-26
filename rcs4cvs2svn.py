@@ -26,7 +26,7 @@ Usage is simple::
 
   $ python rcs4cvs2svn.py /path/to/rcs/project /path/to/cvs/repository
 
-There is a couple of options, for more information run::
+There are a couple of options, for more information run::
 
   $ python rcs4cvs2svn.py --help
 
@@ -202,10 +202,14 @@ def initCvsRepository(cvsTargetFolderPath):
     """
     assert cvsTargetFolderPath is not None
 
-    cvsRootPath = os.path.join(cvsTargetFolderPath, "CVSROOT")
+    absoluteCvsTargetFolderPath = os.path.abspath(cvsTargetFolderPath)
+    cvsRootPath = os.path.join(absoluteCvsTargetFolderPath, "CVSROOT")
     if not os.path.exists(cvsRootPath):
-        log.info("create new CVS repository at \"%s\"" % cvsTargetFolderPath)
-        subprocess.check_call(["cvs", "-d", cvsTargetFolderPath, "init"])
+        log.info(u"create new CVS repository at \"%s\"",
+            absoluteCvsTargetFolderPath)
+        subprocess.check_call([
+            "cvs", "-d", absoluteCvsTargetFolderPath, "init"
+        ])
 
 
 def convertRcsToCvs(rcsSourceFolderPath, cvsTargetFolderPath):
@@ -230,16 +234,16 @@ def convertRcsToCvs(rcsSourceFolderPath, cvsTargetFolderPath):
                     cvsTargetFolderPath,
                     os.path.join(rcsParentDir, rcsFileName)
                 )
-                log.debug("copy \"%s\" -> \"%s\"" % (
-                    filePath, flattenedFilePath
-                ))
+                log.debug(u"copy \"%s\" -> \"%s\"",
+                    filePath, flattenedFilePath)
                 _makedirs(os.path.split(flattenedFilePath)[0])
                 # Copy file without permission bits.
                 shutil.copyfile(rcsFilePath, flattenedFilePath)
                 copiedFileCount += 1
-    log.info("migrated %d files from \"%s\" to \"%s\"" % (
+    log.info(
+        u"migrated %d files from \"%s\" to \"%s\"",
         copiedFileCount, rcsSourceFolderPath, cvsTargetFolderPath
-    ))
+    )
 
 
 def cli():
