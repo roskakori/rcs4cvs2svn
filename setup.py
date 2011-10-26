@@ -8,7 +8,7 @@ import rcs4cvs2svn
 setup(
     name="rcs4cvs2svn",
     version=rcs4cvs2svn.__version__,
-    py_modules=["rcs4cvs2svn"],
+    py_modules=["rcs4cvs2svn", "test_rcs4cvs2svn"],
     description="prepare RCS project for processing with cvs2svn",
     keywords="rcs cvs svn convert migrate import",
     author="Thomas Aglassinger",
@@ -25,6 +25,7 @@ setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 2.5",
         "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2.7",
         "Topic :: Software Development :: Version Control :: RCS",
     ],
 )
