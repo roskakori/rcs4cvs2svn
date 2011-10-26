@@ -91,6 +91,17 @@ The source code is available from <https://github.com/roskakori/rcs4cvs2svn>.
 Version information
 ===================
 
+**Version 1.2, 2011-10-26**
+
+* Fixed logging which could cause issues with file names containing non ASCII
+  characters or percent signs (%).
+* Improved handling of CVS target folder, which can now be a relative folder
+  even though ``csv init`` expects an absolute folder.
+* Improved API: Added ``rcs4cvs2svn.main()``, which can be called from Python
+  similar to the command line.
+* Changed test shell scripts to proper unit test.
+* Cleaned up PEP8 issues.
+
 **Version 1.1, 2010-07-06**
 
 * Added automatic creation of CVS repository in case the target path does
@@ -110,7 +121,7 @@ Version information
 
 * Initial internal version used to convert some of my own projects.
 """
-# Copyright (c) 2006-2010, Thomas Aglassinger
+# Copyright (c) 2006-2011, Thomas Aglassinger
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -145,7 +156,7 @@ Version information
 #
 # Upload release to PyPI::
 #
-# $ sh test_rcs4cvs2svn.sh
+# $ python test_rcs4cvs2svn.py
 # $ pep8 --repeat *.py
 # $ python setup.py sdist --formats=zip upload
 #
@@ -164,7 +175,7 @@ import sys
 
 log = logging.getLogger("rcs4cvs2svn")
 
-__version__ = "1.1"
+__version__ = "1.2"
 
 
 def _listFiles(folderToListPath):
@@ -246,7 +257,9 @@ def convertRcsToCvs(rcsSourceFolderPath, cvsTargetFolderPath):
     )
 
 
-def cli():
+def _parsedOptions(arguments):
+    assert arguments is not None
+
     # Parse command line options.
     Usage = """usage: %prog [options] RCS_FOLDER CVS_FOLDER
 
@@ -257,31 +270,40 @@ def cli():
     )
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
                       help="log all actions performed in console")
-    (options, others) = parser.parse_args()
+    (options, others) = parser.parse_args(arguments)
     if len(others) == 0:
         parser.error("RCS_FOLDER and CVS_FOLDER must be specified")
     elif len(others) == 1:
         parser.error("CVS_FOLDER must be specified")
     elif len(others) > 2:
         parser.error("unknown options must be removed: %s" % others[2:])
-    rcsSourceFolderPath = others[0]
-    cvsTargetFolderPath = others[1]
     if options.verbose:
         log.setLevel(logging.DEBUG)
 
-    initCvsRepository(cvsTargetFolderPath)
-    convertRcsToCvs(rcsSourceFolderPath, cvsTargetFolderPath)
+    rcsSourceFolderPath = others[0]
+    cvsTargetFolderPath = others[1]
 
-if __name__ == "__main__":
-    # Set up logging.
-    logging.basicConfig()
-    log.setLevel(logging.INFO)
+    return rcsSourceFolderPath, cvsTargetFolderPath
+
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+
     exitCode = 1
     try:
-        cli()
+        rcsSourceFolderPath, cvsTargetFolderPath = _parsedOptions(argv[1:])
+        initCvsRepository(cvsTargetFolderPath)
+        convertRcsToCvs(rcsSourceFolderPath, cvsTargetFolderPath)
         exitCode = 0
     except (EnvironmentError, subprocess.CalledProcessError), error:
         log.error(error)
+    except KeyboardInterrupt:
+        log.warning(u"interrupted by user")
     except Exception, error:
         log.exception(error)
-    sys.exit(exitCode)
+    return exitCode
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    sys.exit(main())

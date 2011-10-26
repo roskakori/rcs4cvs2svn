@@ -80,16 +80,25 @@ class Rcs4Csv2SvnTest(unittest.TestCase):
         finally:
             os.chdir(oldCurrentFolder)
 
-    def testCanMigrateRcsToCvs(self):
+    def _buildAndMigrateTestRcsToCsv(self):
         self._buildTestRcsRepository()
-        rcs4cvs2svn.initCvsRepository(os.path.abspath(_HelloCvsFolderPath))
+        rcs4cvs2svn.initCvsRepository(_HelloCvsFolderPath)
         rcs4cvs2svn.convertRcsToCvs(_HelloFolderPath, _HelloCvsFolderPath)
+
+    def _removeTestRcsAndCvs(self):
+        shutil.rmtree(_HelloFolderPath)
+        shutil.rmtree(_HelloRcsFolderPath)
+        shutil.rmtree(_HelloCvsFolderPath)
+
+    def testCanMigrateRcsToCvs(self):
+        self._buildAndMigrateTestRcsToCsv()
+        self._removeTestRcsAndCvs()
 
     def testCanMigrateRcsToSvn(self):
         # Note: In order for this test to work, subversion and cvs2svn must be
         # installed.
 
-        self.testCanMigrateRcsToCvs()
+        self._buildAndMigrateTestRcsToCsv()
 
         # Build svn dump file.
         subprocess.check_call([
@@ -136,10 +145,33 @@ class Rcs4Csv2SvnTest(unittest.TestCase):
             )
 
         # Clean up.
+        shutil.rmtree(_HelloFolderPath)
+        shutil.rmtree(_HelloRcsFolderPath)
         shutil.rmtree(_HelloCvsFolderPath)
         shutil.rmtree(_HelloSvnFolderPath)
+        os.remove(_HelloDumpPath)
         os.remove(_SvnListPath)
 
+    def testCanMigrateRcsToCvsUsingMain(self):
+        self._buildTestRcsRepository()
+        exitCode = rcs4cvs2svn.main([
+            os.path.basename(__file__),
+            _HelloFolderPath,
+            _HelloCvsFolderPath
+        ])
+        self.assertEqual(exitCode, 0)
+        self._removeTestRcsAndCvs()
+
+    def testCanMigrateRcsToCvsUsingMainWithVerboseLogging(self):
+        self._buildTestRcsRepository()
+        exitCode = rcs4cvs2svn.main([
+            os.path.basename(__file__),
+            "--verbose",
+            _HelloFolderPath,
+            _HelloCvsFolderPath
+        ])
+        self.assertEqual(exitCode, 0)
+        self._removeTestRcsAndCvs()
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
