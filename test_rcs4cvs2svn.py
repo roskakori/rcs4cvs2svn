@@ -1,6 +1,7 @@
 """
 Tests for rcs4cvs2svn
 """
+import errno
 import logging
 import os.path
 import shutil
@@ -27,7 +28,6 @@ def _writeTo(targetPath, linesToWrite):
             targetFile.write(line)
             targetFile.write(os.linesep)
 
-
 class Rcs4Csv2SvnTest(unittest.TestCase):
     def setUp(self):
         shutil.rmtree(_HelloFolderPath, ignore_errors=True)
@@ -37,9 +37,23 @@ class Rcs4Csv2SvnTest(unittest.TestCase):
         self._messagePath = "test_rcs4cvs2svn_message.txt"
         shutil.rmtree(_HelloCvsFolderPath, ignore_errors=True)
         shutil.rmtree(_HelloSvnFolderPath, ignore_errors=True)
+        self._assertHasTool("csv", ["cvs", "--version"])
+        self._assertHasTool("csv2svn", ["cvs2svn", "--version"])
+        self._assertHasTool("rcs", ["rcs", "-V"])
+        self._assertHasTool("svn", ["svn", "--version"])
 
     def tearDown(self):
         shutil.rmtree(self._messagePath, ignore_errors=True)
+
+    def _assertHasTool(self, name, callForExistenceCheck):
+        assert name
+        assert callForExistenceCheck
+        try:
+            subprocess.check_call(callForExistenceCheck)
+        except OSError, error:
+            if error.errno == errno.ENOENT:
+                raise EnvironmentError("external tool must be installed: " + name)
+            raise
 
     def _writeMessage(self, linesToWrite):
         assert linesToWrite is not None
